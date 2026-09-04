@@ -1,0 +1,136 @@
+@HostAddress = http://localhost:5000
+
+### 1. Health Checks
+GET {{HostAddress}}/health/live
+Accept: application/json
+
+###
+GET {{HostAddress}}/health/ready
+Accept: application/json
+
+### 2. Status do Sistema
+GET {{HostAddress}}/api/v1/system/status
+Accept: application/json
+
+### 3. Login
+# @name login
+POST {{HostAddress}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@payflow.local",
+  "password": "Admin@123456"
+}
+
+### Extrair Token do Login
+@authToken = {{login.response.body.data.accessToken}}
+@refreshToken = {{login.response.body.data.refreshToken}}
+
+### 4. Me (Usuário Atual)
+GET {{HostAddress}}/api/v1/auth/me
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+### 5. Dashboard Summary
+GET {{HostAddress}}/api/v1/dashboard/summary
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+### 6. Produtos
+GET {{HostAddress}}/api/v1/products?page=1&perPage=20
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+### Criar Produto
+POST {{HostAddress}}/api/v1/products
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "E-book Arquitetura de Software",
+  "sku": "EBOOK-ARQ-01",
+  "type": "digital",
+  "description": "Guia definitivo de microservices e DDD",
+  "priceAmount": 79.90,
+  "currency": "BRL",
+  "status": "active"
+}
+
+### 7. Clientes
+GET {{HostAddress}}/api/v1/customers?page=1&perPage=20
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+### Criar Cliente
+POST {{HostAddress}}/api/v1/customers
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Maria Silva",
+  "email": "maria.silva@exemplo.com",
+  "phone": "+5511999998888",
+  "document": "123.456.789-00"
+}
+
+### 8. Pedidos
+GET {{HostAddress}}/api/v1/orders?page=1&perPage=20
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+### 9. Transações
+GET {{HostAddress}}/api/v1/transactions?page=1&perPage=20
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+### 10. Links de Pagamento
+GET {{HostAddress}}/api/v1/payment-links
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+### 11. Checkout Settings
+GET {{HostAddress}}/api/v1/checkout-settings
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+### 12. Checkout Público (Sem Autenticação)
+GET {{HostAddress}}/api/v1/public/checkouts/plk_demo_payflow
+Accept: application/json
+
+### Iniciar Sessão no Checkout Público
+# @name createSession
+POST {{HostAddress}}/api/v1/public/checkouts/plk_demo_payflow/sessions
+Content-Type: application/json
+
+{
+  "customerName": "Comprador de Teste",
+  "customerEmail": "comprador@teste.com",
+  "customerPhone": "11988887777"
+}
+
+### Pagar com PIX
+@sessionId = {{createSession.response.body.data.sessionId}}
+POST {{HostAddress}}/api/v1/public/checkout-sessions/{{sessionId}}/payments/pix
+Content-Type: application/json
+
+### Pagar com Cartão Mock
+POST {{HostAddress}}/api/v1/public/checkout-sessions/{{sessionId}}/payments/card
+Content-Type: application/json
+
+{
+  "holderName": "Comprador de Teste",
+  "cardNumber": "4111 1111 1111 1234",
+  "expiration": "12/28",
+  "cvv": "123",
+  "installments": 1
+}
+
+### 13. Webhooks
+GET {{HostAddress}}/api/v1/webhooks/endpoints
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+### 14. Auditoria
+GET {{HostAddress}}/api/v1/audit?page=1&perPage=20
+Authorization: Bearer {{authToken}}
+Accept: application/json
