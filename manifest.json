@@ -1,0 +1,10 @@
+{
+  "project": "PayFlow Checkout",
+  "generated_for": "portfolio architecture baseline",
+  "task_count": 80,
+  "reference_image_count": 9,
+  "frontend": "Angular 22",
+  "backend": ".NET 10 LTS / ASP.NET Core",
+  "database": "PostgreSQL",
+  "payment_mode": "mock/sandbox only"
+}

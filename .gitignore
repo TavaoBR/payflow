@@ -1,0 +1,55 @@
+# OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE and editors
+.vs/
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# .NET / C#
+bin/
+obj/
+*.DotSettings.user
+_ReSharper*/
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+.cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+.AGENTS.md
+
+.agents/
