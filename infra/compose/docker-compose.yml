@@ -1,0 +1,42 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: payflow-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-Guga@258!}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-playflow}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-Guga@258!}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Dockerfile.api
+    container_name: payflow-api
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ConnectionStrings__Default: "Server=mysql;Port=3306;Database=${MYSQL_DATABASE:-playflow};User=root;Password=${MYSQL_ROOT_PASSWORD:-Guga@258!};TreatTinyAsBoolean=true;"
+      Frontend__AdminUrl: ${Frontend__AdminUrl:-http://localhost:4200}
+      Frontend__CheckoutUrl: ${Frontend__CheckoutUrl:-http://localhost:4300}
+      Jwt__Issuer: ${Jwt__Issuer:-payflow-api}
+      Jwt__Audience: ${Jwt__Audience:-payflow-web}
+      Jwt__SigningKey: ${Jwt__SigningKey:-CHANGE_ME_DEV_SECRET_MIN_32_CHARS_LONG_KEY}
+      Webhook__EncryptionKey: ${Webhook__EncryptionKey:-CHANGE_ME_DEV_KEY}
+
+volumes:
+  mysql_data:
+    name: payflow_mysql_data

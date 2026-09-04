@@ -1,0 +1,33 @@
+# Multi-stage build for PayFlow.Api (.NET 8)
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /app
+
+# Copy solution and project files for caching restore layer
+COPY apps/api/PayFlow.sln apps/api/
+COPY apps/api/src/PayFlow.Domain/*.csproj apps/api/src/PayFlow.Domain/
+COPY apps/api/src/PayFlow.Contracts/*.csproj apps/api/src/PayFlow.Contracts/
+COPY apps/api/src/PayFlow.Application/*.csproj apps/api/src/PayFlow.Application/
+COPY apps/api/src/PayFlow.Infrastructure/*.csproj apps/api/src/PayFlow.Infrastructure/
+COPY apps/api/src/PayFlow.Api/*.csproj apps/api/src/PayFlow.Api/
+COPY apps/api/tests/PayFlow.UnitTests/*.csproj apps/api/tests/PayFlow.UnitTests/
+
+RUN dotnet restore apps/api/PayFlow.sln
+
+# Copy source code and build
+COPY apps/api/ apps/api/
+WORKDIR /app/apps/api
+RUN dotnet build PayFlow.sln -c Release --no-restore
+
+# Publish Api
+RUN dotnet publish src/PayFlow.Api/PayFlow.Api.csproj -c Release -o /out --no-build
+
+# Runtime stage
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
+COPY --from=build /out .
+
+ENV ASPNETCORE_URLS=http://+:5000
+ENV ASPNETCORE_ENVIRONMENT=Development
+EXPOSE 5000
+
+ENTRYPOINT ["dotnet", "PayFlow.Api.dll"]
